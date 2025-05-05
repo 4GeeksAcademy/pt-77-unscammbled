@@ -2,9 +2,12 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User
+from api.models import db, User, UserHabits, UserGoals, CuisinePrefernces
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
+from flask_jwt_extended import get_jwt_identity, create_access_token, jwt_required, create_access_token
+import hashlib
+
 
 api = Blueprint('api', __name__)
 
@@ -20,3 +23,97 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+
+@api.route('/signup', methods=['POST'])
+def handle_signup():
+    body = request.get_json()
+
+    # main user details
+    first_name = body['first_name']
+    last_name = body['last_name']
+    state = body['state']
+    city = body['city']
+    zip = body['zip']
+    email = body['email']
+    password = hashlib.sha256(body['password'].encode("utf-8")).hexdigest()
+
+    # user habits
+    current_planning_fequency = body['current_planning_fequency']
+    current_cooking_fequency = body['current_cooking_fequency']
+    current_gardening = body['current_gardening']
+    current_allergies = body['current_allergies']
+
+    # user goals
+    goal_planning_fequency = body['goal_planning_fequency']
+    goal_cooking_fequency = body['goal_cooking_fequency']
+    goal_gardening = body['goal_gardening']
+    
+    # user cuisine preferences
+    # so I need to get these sorted into those cateogies
+    # ehh probably not sleep on this and see if I want to adjust in the moring
+    favorite_cuisines =  body['favorite_cuisines']
+    liked_cuisines =  body['liked_cuisines']
+    unsureof_cuisines =  body['unsureof_cuisines']
+    disliked_cuisines =  body['disliked_cuisines']
+    dispised_cuisines =  body['dispised_cuisines']
+
+    # add check for exisiting user
+    user = User(
+        first_name=first_name, 
+        last_name=last_name,
+        state=state,
+        city=city,
+        zip=zip,
+        email=email,
+        password=password
+    )
+
+    db.session.add(user)
+    db.session.commit()
+
+    habits = UserHabits(
+        planning_fequency=current_planning_fequency, 
+        cooking_fequency=current_cooking_fequency,
+        allergies=current_gardening,
+        gardening=current_allergies
+    )
+
+    db.session.add(habits)
+    db.session.commit()
+
+    goals = UserHabits(
+        planning_fequency=goal_planning_fequency, 
+        cooking_fequency=goal_cooking_fequency,
+        gardening=goal_gardening
+    )
+
+    db.session.add(goals)
+    db.session.commit()
+
+    access_token = create_access_token(identity=user.email)
+    return jsonify(access_token=access_token, message="User Successfully Created"), 200
+    
+    
+
+
+@api.route('/login', methods=['POST'])
+def handle_login():
+    body = request.get_json()
+    body_email = body['email']
+    body_password = hashlib.sha256(
+        body['password'].encode("utf-8")).hexdigest()
+    user = User.query.filter_by(email=body_email).first()
+    if user and user.password == body_password:
+        access_token = create_access_token(identity=user.email)
+        return jsonify(access_token=access_token, user=user.serialize()), 200
+    else:
+        return jsonify("User not found"), 400
+
+
+@api.route('/private', methods=['GET'])
+@jwt_required()
+def handle_get_user():
+    user_email = get_jwt_identity()
+    user = User.query.filter_by(email=user_email).first()
+    return jsonify(user=user.serialize()), 200

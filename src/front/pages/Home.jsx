@@ -1,52 +1,28 @@
 import React, { useEffect } from "react"
-import rigoImageUrl from "../assets/img/rigo-baby.jpg";
+import LoginModal from "../components/loginModal.jsx";
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
+import { Link } from "react-router-dom";
+import { fetchRecipes } from "../hooks/apiActions.jsx";
 
 export const Home = () => {
 
 	const { store, dispatch } = useGlobalReducer()
 
-	const loadMessage = async () => {
-		try {
-			const backendUrl = import.meta.env.VITE_BACKEND_URL
+	// useEffect(()=> {
+	// 	fetchRecipes()
+	// }, [])
 
-			if (!backendUrl) throw new Error("VITE_BACKEND_URL is not defined in .env file")
-
-			const response = await fetch(backendUrl + "/api/hello")
-			const data = await response.json()
-
-			if (response.ok) dispatch({ type: "set_hello", payload: data.message })
-
-			return data
-
-		} catch (error) {
-			if (error.message) throw new Error(
-				`Could not fetch the message from the backend.
-				Please check if the backend is running and the backend port is public.`
-			);
-		}
-
-	}
-
-	useEffect(() => {
-		loadMessage()
-	}, [])
-
+	// const fetchRecipes = async() => {
+	// 	const response = await fetch("https://api.edamam.com/api/recipes/v2")
+	// }
+	
 	return (
 		<div className="text-center mt-5">
-			<h1 className="display-4">Hello Rigo!!</h1>
-			<p className="lead">
-				<img src={rigoImageUrl} className="img-fluid rounded-circle mb-3" alt="Rigo Baby" />
-			</p>
-			<div className="alert alert-info">
-				{store.message ? (
-					<span>{store.message}</span>
-				) : (
-					<span className="text-danger">
-						Loading message from the backend (make sure your python 🐍 backend is running)...
-					</span>
-				)}
-			</div>
+			<h3>Returning Users</h3>
+			<LoginModal/>
+
+			<h3>New Users</h3>
+			<Link to={"/create-user"}>Sign up</Link>
 		</div>
 	);
 }; 

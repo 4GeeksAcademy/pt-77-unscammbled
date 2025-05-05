@@ -1,0 +1,51 @@
+.btn-square {
+  height: 10rem;
+  width: 80vw;
+  display: flex;
+  flex-wrap: wrap;
+
+  .mc-option {
+    /* width: 40%; */
+    height: 50%;
+    text-align: center;
+
+    div {
+      height: 124px;
+      width: 124px;
+      margin: 5px;
+      border-radius: 30%;
+    }
+
+    .whitespace {
+      height: 90%;
+      width: 90%;
+      border-radius: 30%;
+      background-color: #faf6ed;
+      text-align: center;
+      margin: auto;
+      padding: 10%;
+    }
+    .one {
+      background-color: #c75a1f;
+      padding: 5% 0% 2% 5%;
+    }
+    .two {
+      background-color: #E8B320;
+      padding: 5% 0% 2% 5%;
+    }
+    .three {
+      background-color: #569D9A;
+      padding: 5% 0% 2% 5%;
+    }
+    .four {
+      background-color: #569d63;
+      padding: 5% 0% 2% 5%;
+    }
+  }
+
+  .mc-option:hover {
+    /* box-shadow: ; */
+    border: 3px solid white;
+    cursor: pointer;
+  }
+}
